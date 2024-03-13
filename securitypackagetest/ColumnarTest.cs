@@ -10,11 +10,13 @@ namespace SecurityPackageTest
     {
         string mainPlain1 = "attackpostponeduntiltwoam";
         string mainPlain2 = "attackpostponeduntiltwoamxxx";
+
         List<int> mainkey = new List<int>() { 4, 3, 1, 2, 5, 6, 7 };
 
         string mainCipher1 = "ttnaaptmtsuoaodwcoiknlpet".ToUpper();
         string mainCipher2 = "ttnaaptmtsuoaodwcoixknlxpetx".ToUpper();
        
+
         string mainPlain3 = "computerscience";
         string mainPlain4 = "computersciencex";
 
