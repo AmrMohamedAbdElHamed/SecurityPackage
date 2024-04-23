@@ -104,9 +104,41 @@ namespace SecurityLibrary.DES
         public override string Encrypt(string plainText, string key)
         {
             //throw new NotImplementedException();
-            //first step convert plainText to a 64 block
-            string new_plain = plainText.Remove(0, 2);
-            string binaryString = Convert.ToString(Convert.ToInt64(new_plain, 16), 2);
+            //convert plainText and key to a 64 block
+            int[] b1 = convert_to_64block(plainText);
+            int[] key_64block = convert_to_64block(key);
+
+            //input the plain text to IP
+            int[] b1_ip = new int[64];
+            for (int i = 0; i < 64; i++)
+            {
+                b1_ip[i] = b1[IP[i]-1];
+            }
+
+            // GET C and D  ,key PC_1
+            int[] C = Get_C_D(key_64block,'C');
+            int[] D = Get_C_D(key_64block, 'D');
+
+            // for the 16 ROUNDS
+            for (int round = 0; round < 16; round++)
+            {
+                // Shift the C and D
+                C = Shift_left(C, Schedule_of_left_shifts[round]);
+                D = Shift_left(D, Schedule_of_left_shifts[round]);
+
+                // Permuted Choice Two (PC-2)
+                int[] PC_2 = Apply_PC_2(C, D);
+
+                // Round
+                b1_ip = Round(b1_ip, PC_2);
+            }
+
+            return null;
+        }
+        public int[] convert_to_64block(string S)
+        {
+            string new_S = S.Remove(0, 2);
+            string binaryString = Convert.ToString(Convert.ToInt64(new_S, 16), 2);
             int zeros = 64 - binaryString.Length;
             int[] b1 = new int[64];
             for (int i = zeros; i < 64; i++)
@@ -116,12 +148,94 @@ namespace SecurityLibrary.DES
                 else
                     b1[i] = 0;
             }
-
-            //input the plain text to IP
-            int[] b1_ip = new int[64];
-            for (int i = 0; i < 64; i++)
+            return b1;
+        }
+        public int[] Get_C_D(int[] key_64block, char c)
+        {
+            if(c == 'C')
             {
-                b1_ip[i] = b1[IP[i]-1];
+                int[] C = new int[28];
+                for (int i = 0; i < 28; i++)
+                {
+                    C[i] = key_64block[PC_1_C[i] - 1];
+                    
+                }
+                return C;
+            }
+            else if(c == 'D')
+            {
+                int[] D = new int[28];
+                for (int i = 0; i < 28; i++)
+                {
+                    D[i] = key_64block[PC_1_D[i] - 1];
+                }
+                return D;
+            }
+            return null;
+        }
+        public int[] Shift_left(int[] T ,int shift)
+        {
+            int[] ret = new int[28];
+            if (shift == 1)
+            {
+                int temp = T[0];
+                for (int i = 0; i < 27; i++)
+                {
+                    ret[i] = T[i + 1];
+                }
+                ret[27] = temp;
+            }
+            else if (shift == 2)
+            {
+                int temp = T[0];
+                int temp2 = T[1];
+                for (int i = 0; i < 26; i++)
+                {
+                    ret[i] = T[i + 1];
+                }
+                ret[26] = temp;
+                ret[27] = temp2;
+            }
+            else
+                throw new Exception("wrong shift number: "+shift);
+            return ret;
+        }
+        public int[] Apply_PC_2(int[] C, int[] D)
+        {
+            int[] C_D = new int[56];
+            int[] ret = new int[48];
+            for (int i = 0; i < 28; i++)
+            {
+                C_D[i] = C[i];
+                C_D[i+28] = D[i];
+            }
+            for (int i = 0; i < 48; i++)
+            {
+                ret[i] = C_D[PC_2[i] - 1];
+            }
+            return ret;
+        }
+        public int[] Round(int[] b1, int[] key_pc2)
+        {
+            //split b1 to left and right
+            int[] left_b = new int[32];
+            int[] right_b = new int[32];
+            for (int i = 0; i < 32; i++)
+            {
+                left_b[i] = b1[i]; 
+                right_b[i] = b1[i + 32]; 
+            }
+            // Expansion premutation for the right side
+            int[] right_exp = new int[48];
+            for (int i = 0; i < 48; i++)
+            {
+                right_exp[i] = right_b[E[i]];
+            }
+            // XOR right_exp with key
+            int[] xor_result = new int[48];
+            for (int i = 0; i < 48; i++)
+            {
+                xor_result[i] = right_exp[i] ^ key_pc2[i];
             }
 
             return null;
