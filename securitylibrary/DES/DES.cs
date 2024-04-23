@@ -108,9 +108,65 @@ namespace SecurityLibrary.DES
         public override string Decrypt(string cipherText, string key)
         {
             //throw new NotImplementedException();
+            //convert plainText and key to a 64 block
+            int[] b1 = convert_to_64block(cipherText);
+            int[] key_64block = convert_to_64block(key);
 
+            //input the plain text to IP
+            int[] b1_ip = new int[64];
+            for (int i = 0; i < 64; i++)
+            {
+                b1_ip[i] = b1[IP[i] - 1];
+            }
+            // Get key of all rounds
+            List<int[]> keys = new List<int[]>();
+            // GET C and D  ,key PC_1
+            int[] C = Get_C_D(key_64block, 'C');
+            int[] D = Get_C_D(key_64block, 'D');
+            for (int i = 0; i < 16; i++)
+            {
+                // Shift the C and D
+                C = Shift_left(C, Schedule_of_left_shifts[i]);
+                D = Shift_left(D, Schedule_of_left_shifts[i]);
 
-            return null;
+                // Permuted Choice Two (PC-2)
+                int[] key_temp = Apply_PC_2(C, D);
+                keys.Add(key_temp);
+            }
+
+            // for the 16 ROUNDS
+            for (int round = 0; round < 16; round++)
+            {
+                // Round
+                b1_ip = Round(b1_ip, keys[15 - round]);
+            }
+            // 32 bit swap
+            int[] left_b = new int[32];
+            int[] right_b = new int[32];
+            for (int i = 0; i < 32; i++)
+            {
+                left_b[i] = b1_ip[i];
+                right_b[i] = b1_ip[i + 32];
+            }
+            for (int i = 0; i < 32; i++)
+            {
+                b1_ip[i] = right_b[i];
+                b1_ip[i + 32] = left_b[i];
+            }
+            // inverse initial permutation
+            int[] plain = new int[64];
+            for (int i = 0; i < 64; i++)
+            {
+                plain[i] = b1_ip[IP_inverse[i] - 1];
+            }
+            // convert to hex in string
+            string plain_hex = "0x";
+            for (int i = 0; i < 16; i++)
+            {
+                plain_hex += Convert.ToString(Convert.ToInt64($"{plain[(i * 4)]}{plain[(i * 4) + 1]}{plain[(i * 4) + 2]}{plain[(i * 4) + 3]}", 2), 16);
+
+            }
+            return plain_hex;
         }
 
         public override string Encrypt(string plainText, string key)
