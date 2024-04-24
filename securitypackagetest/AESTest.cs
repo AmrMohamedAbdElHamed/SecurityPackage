@@ -8,21 +8,33 @@ namespace SecurityPackageTest
     [TestClass]
     public class AESTest
     {
-        string mainPlain = "0x3243F6A8885A308D313198A2e0370734";
+        /*Plain:
+         | 32 | 88 | 31 | E0 |
+         | 43 | 5A | 31 | 37 |
+         | F6 | 30 | 98 | 07 |
+         | A8 | 8D | A2 | 34 |
+         */
+        /*key:
+        | 2B | 28 | AB | 09 |
+        | 7E | AE | F7 | CF |
+        | 15 | D2 | 15 | 4F |
+        | 16 | A6 | 88 | 3C |
+        */
+        string mainPlain =  "0x3243F6A8885A308D313198A2e0370734";
         string mainCipher = "0x3925841D02DC09FBDC118597196A0B32";
-        string mainKey = "0x2B7E151628AED2A6ABF7158809CF4F3C";
+        string mainKey =    "0x2B7E151628AED2A6ABF7158809CF4F3C";
 
-        string mainPlain2 = "0x00000000000000000000000000000001";
+        string mainPlain2 =  "0x00000000000000000000000000000001";
         string mainCipher2 = "0x58e2fccefa7e3061367f1d57a4e7455a";
-        string mainKey2 = "0x00000000000000000000000000000000";
+        string mainKey2 =    "0x00000000000000000000000000000000";
 
-        string mainPlain3 = "0x00112233445566778899aabbccddeeff";
+        string mainPlain3 =  "0x00112233445566778899aabbccddeeff";
         string mainCipher3 = "0x69c4e0d86a7b0430d8cdb78070b4c55a";
-        string mainKey3 = "0x000102030405060708090a0b0c0d0e0f";
+        string mainKey3 =    "0x000102030405060708090a0b0c0d0e0f";
 
-        string newPlain = "0x54776F204F6E65204E696E652054776F";
-        string newCipher = "0x29C3505F571420F6402299B31A02D73A";
-        string newKey = "0x5468617473206D79204B756E67204675";
+        string newPlain =    "0x54776F204F6E65204E696E652054776F";
+        string newCipher =   "0x29C3505F571420F6402299B31A02D73A";
+        string newKey =      "0x5468617473206D79204B756E67204675";
 
         [TestMethod]
         public void AESTestEnc1()
