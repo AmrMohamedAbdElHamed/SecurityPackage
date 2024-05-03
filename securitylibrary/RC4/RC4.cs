@@ -123,6 +123,7 @@ namespace SecurityLibrary.RC4
             //throw new NotImplementedException();
         }
 
+
         public int[] generateKey(int[] k)
         {
 
